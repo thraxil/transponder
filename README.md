@@ -46,11 +46,11 @@ with them. Eg, a 'pause' message will tell it to stop sending data
 plane messages out until a 'resume' message comes in. This is useful
 for seemlessly replacing or upgrading a worker without visible
 downtime or dropped requests. The control plane will also get and pass
-along messages for applying backpressure and about workers joining or
-leaving, which allows for good monitoring and dynamic scaling (a
-"supervisor" worker could spawn more workers of a particular type when
-throughput is dropping and then shut them back down when traffic dies
-down).
+along messages for applying backpressure, heartbeats, and about
+workers joining or leaving, which allows for good monitoring and
+dynamic scaling (a "supervisor" worker could spawn more workers of a
+particular type when throughput is dropping and then shut them back
+down when traffic dies down).
 
 ## Frontend
 
@@ -117,9 +117,21 @@ message to go back to the XPDR.
 
 ### Replayer
 
-### Cache
+Store the last N messages that have gone by (or all the messages for
+the last N seconds) in a circular buffer. Watch for a "please replay"
+message asking it to resend a particular message or messages from a
+time period.
+
+### Bridge
+
+Take messages matching a certain pattern on one XPDR and pass them
+along to another XPDR.
 
 ### Stats Collector
+
+Like statsd, count messages that go through and aggregate statistics
+about them, rolling up every N seconds and submitting to Graphite (or
+sending the aggregates as a new message).
 
 ### Console
 
@@ -134,7 +146,10 @@ queues drain.
 
 ### Supervisor
 
-### Scalar
+Watches for heartbeat messages from a particular set of workers. Knows
+how to start a replacement if one disappears.
+
+### Scaler
 
 ## Message Format
 
