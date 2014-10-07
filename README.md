@@ -125,7 +125,7 @@ time period.
 ### Bridge
 
 Take messages matching a certain pattern on one XPDR and pass them
-along to another XPDR.
+along to another XPDR. For composing systems of systems.
 
 ### Stats Collector
 
@@ -151,6 +151,29 @@ how to start a replacement if one disappears.
 
 ### Scaler
 
+Watch for messages about load, throughput, etc. and spin up/down new
+workers in response.
+
 ## Message Format
+
+per 0MQ norms, every message gets a routing key, which is a prefix string
+that workers use to quickly decide whether they are going to handle
+that message or not. After that, there are a number of header fields
+and the payload of the message will typically be a JSON structure.
+
+The routing key is fairly arbitrary but might look like:
+
+* "HTTP|GET|host.example.com|unauthenticated|/path/requested/"
+* "HTTP|GET|host.example.com|unauthenticated|/path/requested/"
+* "RESPONSE|id=5f25e981-272d-4552-a433-22cb4de31272"
+* "PAUSE|*"
+* "RESUME|frontend.*"
+* "HEARTBEAT|frontend|5f25e981-272d-4552-a433-22cb4de31272"
+
+Technically, it's up to your system. But the way 0MQ subscriptions
+work, you'll want to set it up so workers can subscribe to
+prefixes. Generally, there will be a lot of messages flying around in
+a moderately complex system, so the goal is to make it as simple as
+possible for a worker to know that it can ignore a given message.
 
 ## Deployment/Orchestration
